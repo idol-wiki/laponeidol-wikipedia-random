@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LAPONE ランダム Wikipedia</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+      background: linear-gradient(145deg, #f5f3ff 0%, #eef2ff 50%, #fdf2f8 100%);
+      color: #1f2937;
+    }
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 28px 22px;
+      box-shadow: 0 14px 36px rgba(79, 70, 229, 0.12);
+      text-align: center;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #5b21b6;
+      background: #ede9fe;
+      padding: 5px 12px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: 20px;
+      margin: 0 0 8px;
+    }
+    .sub {
+      font-size: 13px;
+      color: #6b7280;
+      margin: 0 0 22px;
+    }
+    .picked-box {
+      background: #f9fafb;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 18px;
+      padding: 20px 14px;
+      margin-bottom: 20px;
+    }
+    .group-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #7c3aed;
+      margin-bottom: 6px;
+    }
+    .name-label {
+      font-size: 26px;
+      font-weight: 800;
+      color: #111827;
+      word-break: break-word;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.12s ease, opacity 0.12s ease;
+    }
+    .btn:active {
+      transform: scale(0.98);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #6d28d9, #4f46e5);
+      color: #ffffff;
+      margin-bottom: 12px;
+    }
+    .btn-secondary {
+      background: #f3f4f6;
+      color: #1f2937;
+    }
+    .note {
+      margin-top: 16px;
+      font-size: 12px;
+      color: #9ca3af;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="badge">RANDOM PICKER</div>
+    <h1>LAPONE Wikipedia</h1>
+    <p class="sub">ランダムで選ばれたページのWikipediaを開けるよ</p>
+
+    <div class="picked-box">
+      <div class="group-label" id="groupLabel">---</div>
+      <div class="name-label" id="nameLabel">読み込み中...</div>
+    </div>
+
+    <a id="wikiLink" class="btn btn-primary" href="#" target="_blank" rel="noopener noreferrer">
+      Wikipediaを開く
+    </a>
+    <button id="rerollBtn" class="btn btn-secondary" type="button">
+      もう1回ランダムで引く
+    </button>
+
+    <p class="note">
+      ※ページによってはWikipedia側の記事が存在しない場合があります。
+    </p>
+  </main>
+
+  <script>
+    const ITEMS = [
+      // Groups
+      { group: "GROUP", name: "JO1", url: "https://ja.wikipedia.org/wiki/JO1" },
+      { group: "GROUP", name: "INI", url: "https://ja.wikipedia.org/wiki/INI" },
+      { group: "GROUP", name: "DXTEEN", url: "https://ja.wikipedia.org/wiki/DXTEEN" },
+      { group: "GROUP", name: "KO1KEYZ", url: "https://ja.wikipedia.org/wiki/KO1KEYZ" },
+      { group: "GROUP", name: "ME:I", url: "https://ja.wikipedia.org/wiki/ME:I" },
+      { group: "GROUP", name: "IS:SUE", url: "https://ja.wikipedia.org/wiki/IS:SUE" },
+
+      // JO1
+      { group: "JO1", name: "與那城奨", url: "https://ja.wikipedia.org/wiki/%E8%88%87%E9%82%A3%E5%9F%8E%E5%A5%A8" },
+      { group: "JO1", name: "川尻蓮", url: "https://ja.wikipedia.org/wiki/%E5%B7%9D%E5%B0%BB%E8%93%AE" },
+      { group: "JO1", name: "白岩瑠姫", url: "https://ja.wikipedia.org/wiki/%E7%99%BD%E5%B2%A9%E7%91%A0%E5%A7%AB" },
+      { group: "JO1", name: "河野純喜", url: "https://ja.wikipedia.org/wiki/%E6%B2%B3%E9%87%8E%E7%B4%94%E5%96%9C" },
+      { group: "JO1", name: "佐藤景瑚", url: "https://ja.wikipedia.org/wiki/%E4%BD%90%E8%97%A4%E6%99%AF%E7%90%A5" },
+      { group: "JO1", name: "川西拓実", url: "https://ja.wikipedia.org/wiki/%E5%B7%9D%E8%A5%BF%E6%8B%93%E5%AE%9F" },
+      { group: "JO1", name: "木全翔也", url: "https://ja.wikipedia.org/wiki/%E6%9C%A8%E5%85%A8%E7%BF%94%E4%B9%9F" },
+      { group: "JO1", name: "金城碧海", url: "https://ja.wikipedia.org/wiki/%E9%87%91%E5%9F%8E%E7%A2%A7%E6%B5%B7" },
+      { group: "JO1", name: "豆原一成", url: "https://ja.wikipedia.org/wiki/%E8%B1%86%E5%8E%9F%E4%B8%80%E6%88%90" },
+
+      // INI
+      { group: "INI", name: "池﨑理人", url: "https://ja.wikipedia.org/wiki/%E6%B1%A0%E5%B4%8E%E7%90%86%E4%BA%BA" },
+      { group: "INI", name: "尾崎匠海", url: "https://ja.wikipedia.org/wiki/%E5%B0%BE%E5%B4%8E%E5%8C%A0%E6%B5%B7" },
+      { group: "INI", name: "木村柾哉", url: "https://ja.wikipedia.org/wiki/%E6%9C%A8%E6%9D%91%E6%AD%93%E5%93%89" },
+      { group: "INI", name: "後藤威尊", url: "https://ja.wikipedia.org/wiki/%E5%BE%8C%E8%97%A4%E5%A8%81%E5%B0%8A" },
+      { group: "INI", name: "佐野雄大", url: "https://ja.wikipedia.org/wiki/%E4%BD%90%E9%87%8E%E9%9B%84%E5%A4%A7" },
+      { group: "INI", name: "許豊凡", url: "https://ja.wikipedia.org/wiki/%E8%A8%B1%E8%B1%8A%E5%87%A1" },
+      { group: "INI", name: "髙塚大夢", url: "https://ja.wikipedia.org/wiki/%E9%AB%99%E5%A1%9A%E5%A4%A7%E5%A4%A2" },
+      { group: "INI", name: "田島将吾", url: "https://ja.wikipedia.org/wiki/%E7%94%B0%E5%B3%B6%E5%B0%86%E5%90%BE" },
+      { group: "INI", name: "西洸人", url: "https://ja.wikipedia.org/wiki/%E8%A5%BF%E6%B4%BE%E4%BA%BA" },
+      { group: "INI", name: "藤牧京介", url: "https://ja.wikipedia.org/wiki/%E8%97%A4%E7%89%A7%E4%BA%AC%E4%BB%8B" },
+      { group: "INI", name: "松田迅", url: "https://ja.wikipedia.org/wiki/%E6%9D%BE%E7%94%B0%E8%BF%85" },
+
+      // DXTEEN
+      { group: "DXTEEN", name: "大久保波留", url: "https://ja.wikipedia.org/wiki/%E5%A4%A7%E4%B9%85%E4%BF%9D%E6%B3%A2%E7%95%99" },
+      { group: "DXTEEN", name: "田中笑太郎", url: "https://ja.wikipedia.org/wiki/%E7%94%B0%E4%B8%AD%E7%AC%91%E5%A4%AA%E9%83%8E" },
+      { group: "DXTEEN", name: "谷口太一", url: "https://ja.wikipedia.org/wiki/%E8%B0%B7%E5%8F%A3%E5%A4%AA%E4%B8%80" },
+      { group: "DXTEEN", name: "寺尾香信", url: "https://ja.wikipedia.org/wiki/%E5%AF%BA%E5%B0%BE%E9%A6%99%E4%BF%A1" },
+      { group: "DXTEEN", name: "平本健", url: "https://ja.wikipedia.org/wiki/%E5%B9%B3%E6%9C%AC%E5%81%A5" },
+      { group: "DXTEEN", name: "福田歩汰", url: "https://ja.wikipedia.org/wiki/%E7%A6%8F%E7%94%B0%E6%AD%A9%E6%B1%B0" },
+
+      // KO1KEYZ
+      { group: "KO1KEYZ", name: "安部結蘭", url: "https://ja.wikipedia.org/wiki/%E5%AE%89%E9%83%A8%E7%B5%90%E8%98%AD" },
+      { group: "KO1KEYZ", name: "飯塚亮賀", url: "https://ja.wikipedia.org/wiki/%E9%A3%AF%E5%A1%9A%E4%BA%AE%E8%B3%80" },
+      { group: "KO1KEYZ", name: "オ・シンヘン", url: "https://ja.wikipedia.org/wiki/%E3%82%AA%E3%83%BB%E3%82%B7%E3%83%B3%E3%83%98%E3%83%B3" },
+      { group: "KO1KEYZ", name: "小野慶人", url: "https://ja.wikipedia.org/wiki/%E5%B0%8F%E9%87%8E%E6%85%B6%E4%BA%BA" },
+      { group: "KO1KEYZ", name: "加藤大樹", url: "https://ja.wikipedia.org/wiki/%E5%8A%A0%E8%97%A4%E5%A4%A7%E6%A8%B9" },
+      { group: "KO1KEYZ", name: "後藤結", url: "https://ja.wikipedia.org/wiki/%E5%BE%8C%E8%97%A4%E7%B5%90" },
+      { group: "KO1KEYZ", name: "杉山竜司", url: "https://ja.wikipedia.org/wiki/%E6%9D%89%E5%B1%B1%E7%AB%9C%E5%8F%B8" },
+      { group: "KO1KEYZ", name: "照井康祐", url: "https://ja.wikipedia.org/wiki/%E7%85%A7%E4%BA%95%E5%BA%B7%E7%A5%90" },
+      { group: "KO1KEYZ", name: "パク・シヨン", url: "
